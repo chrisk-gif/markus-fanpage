@@ -1,0 +1,10 @@
+# Instruksjoner for å pushe til GitHub:
+
+1. Opprett et nytt repository på GitHub.com
+2. Kjør disse kommandoene:
+
+git remote add origin https://github.com/DITT-BRUKERNAVN/markus-fanpage.git
+git branch -M main
+git push -u origin main
+
+# Erstatt DITT-BRUKERNAVN med ditt GitHub brukernavn
