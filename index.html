@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MARKUS KVILLUM KILDAHL - Legenden</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Animated stars background */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            text-shadow: 0 0 20px #fff, 0 0 40px #ff00ff, 0 0 60px #ff00ff;
+            animation: glow 2s ease-in-out infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #fff, 0 0 40px #ff00ff, 0 0 60px #ff00ff; }
+            50% { text-shadow: 0 0 30px #fff, 0 0 60px #00ffff, 0 0 80px #00ffff; }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            font-style: italic;
+            margin-top: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            margin-top: 20px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        /* Header image strip */
+        .header-images {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding: 0 20px;
+        }
+
+        .header-img {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .header-img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Container */
+        .container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            z-index: 1;
+        }
+
+        /* Section styling */
+        .section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            color: #ffd700;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 3px solid #ffd700;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            background: rgba(255,255,255,0.15);
+            border-left: 5px solid #ffd700;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateX(10px);
+        }
+
+        .timeline-year {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .timeline-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Quote Carousel */
+        .quote-carousel {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .quote-image-container {
+            flex-shrink: 0;
+        }
+
+        .quote-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+        }
+
+        .quote-image.active {
+            display: block;
+            animation: fadeIn 1s ease;
+        }
+
+        .quote-text-container {
+            flex: 1;
+        }
+
+        .quote {
+            display: none;
+            font-size: 1.8rem;
+            font-style: italic;
+            line-height: 1.8;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .quote.active {
+            display: block;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quote::before {
+            content: '"';
+            font-size: 4rem;
+            color: rgba(255,255,255,0.3);
+            position: absolute;
+            left: 20px;
+            top: 0;
+        }
+
+        .quote-author {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #fff;
+            font-style: normal;
+        }
+
+        .carousel-dots {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            margin: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: #ffd700;
+            transform: scale(1.3);
+        }
+
+        /* Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 3px solid #ffd700;
+            aspect-ratio: 4/3;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-placeholder {
+            font-size: 1rem;
+            text-align: center;
+            padding: 20px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Achievements */
+        .achievements-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .achievement {
+            background: rgba(255,215,0,0.2);
+            border-left: 5px solid #ffd700;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .achievement:hover {
+            background: rgba(255,215,0,0.3);
+            transform: translateX(10px);
+        }
+
+        .achievement::before {
+            content: '🏆 ';
+            font-size: 1.5rem;
+        }
+
+        /* Fun Facts */
+        .fun-facts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .fun-fact {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .fun-fact-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .fun-fact-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0,0,0,0.3);
+            margin-top: 60px;
+        }
+
+        footer p {
+            font-size: 1.2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+                letter-spacing: 4px;
+            }
+
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .quote {
+                font-size: 1.3rem;
+            }
+
+            .header-images {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .header-img {
+                width: 80px;
+                height: 55px;
+            }
+
+            .quote-carousel {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .quote-image {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated stars -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Header -->
+    <header>
+        <h1 class="hero-title">✨ Markus Kvillum Kildahl ✨</h1>
+        <p class="subtitle">Legenden. Visjonen. Ikonen.</p>
+        <p class="tagline">Født 30. juli 1997 - En dato verden aldri vil glemme</p>
+        <div class="header-images">
+            <img src="images/img1.png" alt="Markus" class="header-img">
+            <img src="images/img7.png" alt="Markus" class="header-img">
+            <img src="images/img5.png" alt="Markus" class="header-img">
+            <img src="images/img8.png" alt="Markus" class="header-img">
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+
+        <!-- Epic Stats -->
+        <section class="section">
+            <h2 class="section-title">⚡ Legendariske Statistikker ⚡</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">49</div>
+                    <div class="stat-label">Milliarder kroner i prosjekter</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">7.6</div>
+                    <div class="stat-label">Sekunder på 60m (Lynrask!)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">NM-Gull i Bandy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12,000</div>
+                    <div class="stat-label">Studenter representert i Tekna</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Karisma-poeng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Suksessrate</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quote Carousel -->
+        <section class="section">
+            <h2 class="section-title">💬 Legendariske Sitater 💬</h2>
+            <div class="quote-carousel">
+                <div class="quote-image-container">
+                    <img src="images/img2.png" alt="Markus" class="quote-image active">
+                    <img src="images/img4.png" alt="Markus" class="quote-image">
+                    <img src="images/img1.png" alt="Markus" class="quote-image">
+                    <img src="images/img8.png" alt="Markus" class="quote-image">
+                </div>
+                <div class="quote-text-container">
+                    <div class="quote active">
+                        Mener at Simen Eide Trollvik løp 7,6 på 60 m, så jeg skal ikke få unødvendig mye creds her :)
+                        <div class="quote-author">- Markus Kvillum Kildahl, 2022 (Ydmykhetens mester)</div>
+                    </div>
+                    <div class="quote">
+                        Overvann? Det er ikke bare vann som renner over - det er en livsfilosofi.
+                        <div class="quote-author">- Markus Kvillum Kildahl (sannsynligvis)</div>
+                    </div>
+                    <div class="quote">
+                        Jeg redder ikke bare vannledninger, jeg redder sivilisasjoner.
+                        <div class="quote-author">- Markus Kvillum Kildahl (definitivt)</div>
+                    </div>
+                    <div class="quote">
+                        De sa jeg ikke kunne kombinere bandy og ingeniørfag. Jeg sa: Hold min vannprøve.
+                        <div class="quote-author">- Markus Kvillum Kildahl (inspirerende)</div>
+                    </div>
+                    <div class="carousel-dots">
+                        <span class="dot active" onclick="currentSlide(1)"></span>
+                        <span class="dot" onclick="currentSlide(2)"></span>
+                        <span class="dot" onclick="currentSlide(3)"></span>
+                        <span class="dot" onclick="currentSlide(4)"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section class="section">
+            <h2 class="section-title">📅 Tidslinjen til Storhet 📅</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-year">1997</div>
+                    <div class="timeline-content">
+                        <strong>30. juli:</strong> Verden ble velsignet med Markus' fødsel. Stjerner alignerte. Vannrør rundt om i Norge begynte å fungere bedre.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2014-2018</div>
+                    <div class="timeline-content">
+                        <strong>Fotballkarrieren:</strong> Spilte for Øvrevoll Hosle, NMBUI og flere andre lag. Motstandere gråt. Lagkamerater jublet.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2017</div>
+                    <div class="timeline-content">
+                        <strong>Leder Tekna Student NMBU:</strong> Ledet med visdom og grace. Studenter ble inspirert. Forelesere tok notater.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2018-2019</div>
+                    <div class="timeline-content">
+                        <strong>Styremedlem Studentutvalget Tekna:</strong> Representerte 12,000 studenter. Hver eneste en av dem stolte på ham blindt.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2019-2020</div>
+                    <div class="timeline-content">
+                        <strong>San Diego State University:</strong> USA fikk smake på norsk excellence. Surfebrettene i California bøyde seg i ærefrykt.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2021</div>
+                    <div class="timeline-content">
+                        <strong>Vannlekkasje-rapporten:</strong> Som sommerstudent skrev han rapporten som endret norsk vannforvaltning for alltid. Kommuner over hele landet tok kontakt.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2022</div>
+                    <div class="timeline-content">
+                        <strong>Idrettsmerket 2022:</strong> Løp 60m på 7,6 sekunder. Bislett stadion har aldri sett maken. (Men Simen var litt raskere, ærlig som Markus er).
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2022-2025</div>
+                    <div class="timeline-content">
+                        <strong>Asplan Viak:</strong> Fra Sivilingeniør til Konstituert Tilbudssjef. Klatrer rangstige raskere enn vannet renner i rørene han designer.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">NM-Gull</div>
+                    <div class="timeline-content">
+                        <strong>Bandy-Legenden:</strong> NM-gull med Stabæk S-menn. Bandyklubben har bygget et alter til hans ære.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Achievements -->
+        <section class="section">
+            <h2 class="section-title">🏆 Prestasjonsliste 🏆</h2>
+            <ul class="achievements-list">
+                <li class="achievement">Jobbet på REGJERINGSKVARTALET - 49 MILLIARDER kroner prosjekt!</li>
+                <li class="achievement">Nye Tøyenbadet - 2 milliarder kroner. Ingen stor sak for Markus.</li>
+                <li class="achievement">NM-Gull i Bandy med Stabæk</li>
+                <li class="achievement">Master i Vann- og miljøteknikk fra NMBU</li>
+                <li class="achievement">Bachelor i Økonomi og ledelse - fordi én master ikke var nok</li>
+                <li class="achievement">Utveksling til San Diego - spredte norsk kultur til USA</li>
+                <li class="achievement">Representerte 12,000 studenter i Tekna</li>
+                <li class="achievement">Skrev rapporten som reddet Norges vannrør</li>
+                <li class="achievement">Instagram-bruker: @moiken (følg nå!)</li>
+                <li class="achievement">Styremedlem i Ung i Asplan Viak</li>
+            </ul>
+        </section>
+
+        <!-- Fun Facts -->
+        <section class="section">
+            <h2 class="section-title">🌟 Morsomme Fakta 🌟</h2>
+            <div class="fun-facts">
+                <div class="fun-fact">
+                    <div class="fun-fact-icon">💧</div>
+                    <div class="fun-fact-text">Spesialist på overvannshåndtering. Når det regner, ringer kommuner Markus først.</div>
+                </div>
+                <div class="fun-fact">
+                    <div class="fun-fact-icon">🏃</div>
+                    <div class="fun-fact-text">Løper like fort som vannet han designer systemer for.</div>
+                </div>
+                <div class="fun-fact">
+                    <div class="fun-fact-icon">🏒</div>
+                    <div class="fun-fact-text">NM-gullvinner i bandy. På isen er han ustoppelig.</div>
+                </div>
+                <div class="fun-fact">
+                    <div class="fun-fact-icon">🌍</div>
+                    <div class="fun-fact-text">Studerte i San Diego. Californias vannproblemer løste seg selv når han var der.</div>
+                </div>
+                <div class="fun-fact">
+                    <div class="fun-fact-icon">👨‍👩‍👧‍👦</div>
+                    <div class="fun-fact-text">Har søstrene Ida og Julie, brødrene Andreas og Gustav. Alle lever i skyggen av hans storhet.</div>
+                </div>
+                <div class="fun-fact">
+                    <div class="fun-fact-icon">📱</div>
+                    <div class="fun-fact-text">Telefonnummer: 953 69 515. Ring for vannmirakel.</div>
+                </div>
+                <div class="fun-fact">
+                    <div class="fun-fact-icon">🎓</div>
+                    <div class="fun-fact-text">To grader fra NMBU fordi én var for kjedelig.</div>
+                </div>
+                <div class="fun-fact">
+                    <div class="fun-fact-icon">⚽</div>
+                    <div class="fun-fact-text">Fotballkarriere 2014-2018. Scoret flere mål enn Haaland (kanskje).</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery -->
+        <section class="section">
+            <h2 class="section-title">📸 Bildegalleri 📸</h2>
+            <div class="gallery-grid" id="gallery">
+                <div class="gallery-item">
+                    <img src="images/img1.png" alt="Markus ved vannet" class="gallery-img">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/img2.png" alt="Markus profilbilde" class="gallery-img">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/img3.png" alt="Markus og teamet" class="gallery-img">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/img4.png" alt="Markus ute og spiser" class="gallery-img">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/img5.png" alt="Markus med trofeer" class="gallery-img">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/img6.png" alt="Markus i aksjon" class="gallery-img">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/img7.png" alt="Markus i dress" class="gallery-img">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/img8.png" alt="Markus casual" class="gallery-img">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/img9.png" alt="Markus med venner" class="gallery-img">
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>🌟 En uoffisiell hyllest til Markus Kvillum Kildahl 🌟</p>
+        <p style="margin-top: 10px; font-size: 1rem; opacity: 0.8;">Laget med kjærlighet til julefesten 2025</p>
+        <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.6;">Instagram: @moiken | Telefon: 953 69 515 | Email: markus.kildahl@asplanviak.no</p>
+    </footer>
+
+    <script>
+        // Generate random stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Quote carousel
+        let currentQuoteIndex = 0;
+        const quotes = document.querySelectorAll('.quote');
+        const quoteImages = document.querySelectorAll('.quote-image');
+        const dots = document.querySelectorAll('.dot');
+
+        function showQuote(index) {
+            quotes.forEach(quote => quote.classList.remove('active'));
+            quoteImages.forEach(img => img.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            quotes[index].classList.add('active');
+            quoteImages[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        function nextQuote() {
+            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+            showQuote(currentQuoteIndex);
+        }
+
+        function currentSlide(index) {
+            currentQuoteIndex = index - 1;
+            showQuote(currentQuoteIndex);
+        }
+
+        // Auto-advance quotes every 7 seconds (5 + 2)
+        setInterval(nextQuote, 7000);
+
+        // Gallery auto-rotation
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        let currentGalleryIndex = 0;
+
+        function rotateGallery() {
+            // Remove highlight from all items
+            galleryItems.forEach(item => {
+                item.style.transform = 'scale(1)';
+                item.style.zIndex = '1';
+            });
+
+            // Highlight current item
+            galleryItems[currentGalleryIndex].style.transform = 'scale(1.1)';
+            galleryItems[currentGalleryIndex].style.zIndex = '10';
+            galleryItems[currentGalleryIndex].style.transition = 'transform 0.5s ease';
+
+            // Move to next item
+            currentGalleryIndex = (currentGalleryIndex + 1) % galleryItems.length;
+        }
+
+        // Start gallery rotation every 3 seconds
+        setInterval(rotateGallery, 3000);
+        rotateGallery(); // Start immediately
+    </script>
+</body>
+</html>
