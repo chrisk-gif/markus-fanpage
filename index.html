@@ -282,8 +282,11 @@
         }
 
         .carousel-dots {
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
             text-align: center;
-            margin-top: 30px;
         }
 
         .dot {
@@ -461,11 +464,13 @@
             .quote-carousel {
                 flex-direction: column;
                 gap: 20px;
-                padding: 30px 20px;
+                padding: 30px 10px 60px 10px;
             }
 
             .quote-text-container {
-                min-height: 280px;
+                min-height: 250px;
+                width: 100%;
+                padding: 0 5px;
             }
 
             .quote {
@@ -483,7 +488,7 @@
             }
 
             .carousel-dots {
-                margin-top: 20px;
+                bottom: -40px;
             }
 
             .timeline {
