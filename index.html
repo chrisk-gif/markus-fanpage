@@ -236,20 +236,28 @@
 
         .quote-text-container {
             flex: 1;
+            min-height: 220px;
+            position: relative;
         }
 
         .quote {
-            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            opacity: 0;
+            visibility: hidden;
             font-size: 1.8rem;
             font-style: italic;
             line-height: 1.8;
             color: #ffd700;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
         .quote.active {
-            display: block;
-            animation: fadeIn 1s ease;
+            opacity: 1;
+            visibility: visible;
         }
 
         @keyframes fadeIn {
@@ -454,6 +462,10 @@
                 flex-direction: column;
                 gap: 20px;
                 padding: 30px 20px;
+            }
+
+            .quote-text-container {
+                min-height: 280px;
             }
 
             .quote {
@@ -831,8 +843,8 @@
             showQuote(currentQuoteIndex);
         }
 
-        // Auto-advance quotes every 5 seconds
-        setInterval(nextQuote, 5000);
+        // Auto-advance quotes every 6 seconds
+        setInterval(nextQuote, 6000);
 
         // Gallery auto-rotation
         const galleryItems = document.querySelectorAll('.gallery-item');
