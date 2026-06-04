@@ -686,9 +686,85 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            text-shadow: 0 0 20px #fff, 0 0 40px #ff00ff, 0 0 60px #ff00ff;
+            animation: glow 2s ease-in-out infinite;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .splash-subtitle {
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .splash-enter {
+            font-size: 1.4rem;
+            color: rgba(255,255,255,0.8);
+            animation: pulse-text 2s ease-in-out infinite;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse-text {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        @media (max-width: 768px) {
+            .splash-title {
+                font-size: 2rem;
+                letter-spacing: 3px;
+            }
+
+            .splash-subtitle {
+                font-size: 1rem;
+            }
+
+            .splash-enter {
+                font-size: 1.1rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen" onclick="enterSite()">
+        <div class="splash-title">✨ Markus Kvillum Kildahl ✨</div>
+        <div class="splash-subtitle">Legenden. Visjonen. Ikonet.</div>
+        <div class="splash-enter">Klikk for å entre</div>
+    </div>
+
     <!-- Animated stars -->
     <div class="stars" id="stars"></div>
 
@@ -1028,25 +1104,14 @@
             }
         }
 
-        // Autoplay when page loads
-        window.addEventListener('load', () => {
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    playBtn.textContent = '⏸';
-                    playBtn.classList.add('playing');
-                }).catch(() => {
-                    // Browser blocked autoplay — start on first click anywhere
-                    document.addEventListener('click', function startAudio() {
-                        audio.play().then(() => {
-                            playBtn.textContent = '⏸';
-                            playBtn.classList.add('playing');
-                        });
-                        document.removeEventListener('click', startAudio);
-                    });
-                });
-            }
-        });
+        // Enter site — dismiss splash and start music
+        function enterSite() {
+            document.getElementById('splashScreen').classList.add('hidden');
+            audio.play().then(() => {
+                playBtn.textContent = '⏸';
+                playBtn.classList.add('playing');
+            });
+        }
 
         // Generate random stars
         const starsContainer = document.getElementById('stars');
