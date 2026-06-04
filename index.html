@@ -1064,36 +1064,13 @@
             </div>
         </section>
 
-        <!-- Music Player -->
-        <section class="section">
-            <h2 class="section-title">🎵 Markus' Anthem 🎵</h2>
-            <div class="music-player">
-                <div class="player-info">
-                    <div class="song-title">Markus Stormwater</div>
-                    <div class="song-artist">Den offisielle fanpage-låten</div>
-                </div>
-                <div class="player-controls">
-                    <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
-                    <div class="volume-container">
-                        <span class="volume-icon" onclick="toggleMute()">🔊</span>
-                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.7" oninput="setVolume(this.value)">
-                    </div>
-                </div>
-                <div class="progress-container" id="progressContainer" onclick="seekAudio(event)">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                <div class="time-display">
-                    <span id="currentTime">0:00</span>
-                    <span id="duration">0:00</span>
-                </div>
-            </div>
-            <audio id="audioPlayer" src="Markus.mp3" autoplay preload="auto"></audio>
-        </section>
+        <!-- Hidden anthem: autostarts on first interaction, then continues into the album below -->
+        <audio id="audioPlayer" src="Markus.mp3" autoplay preload="auto"></audio>
 
         <!-- Exclusive Album -->
         <section class="section">
             <h2 class="section-title">💿 Eksklusivt Album 💿</h2>
-            <p class="album-intro">🔓 Eksklusiv tilgang til albumet hans — disse sporene har kun de aller mest hengivne fansene fått høre. Trykk play og bli en del av legenden. 🌟</p>
+            <p class="album-intro">Eksklusiv tilgang til albumet hans</p>
             <div class="track-list">
                 <div class="track" data-src="Russ 2.mp3" onclick="playTrack(this)">
                     <div class="track-play">▶</div>
@@ -1188,96 +1165,29 @@
     </footer>
 
     <script>
-        // Music Player
+        // Hidden anthem: autostarts on first interaction, then continues into the album.
         const audio = document.getElementById('audioPlayer');
-        const playBtn = document.getElementById('playBtn');
-        const progressBar = document.getElementById('progressBar');
-        const currentTimeEl = document.getElementById('currentTime');
-        const durationEl = document.getElementById('duration');
-        const volumeSlider = document.getElementById('volumeSlider');
-
         audio.volume = 0.7;
 
-        function togglePlay() {
-            if (audio.paused) {
-                audio.play();
-                playBtn.textContent = '⏸';
-                playBtn.classList.add('playing');
-            } else {
-                audio.pause();
-                playBtn.textContent = '▶';
-                playBtn.classList.remove('playing');
-            }
-        }
-
-        function formatTime(seconds) {
-            const min = Math.floor(seconds / 60);
-            const sec = Math.floor(seconds % 60);
-            return min + ':' + (sec < 10 ? '0' : '') + sec;
-        }
-
-        audio.addEventListener('timeupdate', () => {
-            const pct = (audio.currentTime / audio.duration) * 100;
-            progressBar.style.width = pct + '%';
-            currentTimeEl.textContent = formatTime(audio.currentTime);
-        });
-
-        audio.addEventListener('loadedmetadata', () => {
-            durationEl.textContent = formatTime(audio.duration);
-        });
-
-        audio.addEventListener('ended', () => {
-            playBtn.textContent = '▶';
-            playBtn.classList.remove('playing');
-            progressBar.style.width = '0%';
-            currentTimeEl.textContent = '0:00';
-            // When the auto-started anthem finishes, continue into the album,
-            // starting with "Markus On The Bus".
-            const busTrack = document.querySelector('.track[data-src="Markus On The Bus.mp3"]');
-            if (busTrack) playTrack(busTrack);
-        });
-
-        function seekAudio(e) {
-            const container = document.getElementById('progressContainer');
-            const rect = container.getBoundingClientRect();
-            const pct = (e.clientX - rect.left) / rect.width;
-            audio.currentTime = pct * audio.duration;
-        }
-
-        function setVolume(val) {
-            audio.volume = val;
-            document.querySelector('.volume-icon').textContent = val == 0 ? '🔇' : val < 0.5 ? '🔉' : '🔊';
-        }
-
-        function toggleMute() {
-            if (audio.volume > 0) {
-                audio.dataset.prevVolume = audio.volume;
-                audio.volume = 0;
-                volumeSlider.value = 0;
-                document.querySelector('.volume-icon').textContent = '🔇';
-            } else {
-                audio.volume = audio.dataset.prevVolume || 0.7;
-                volumeSlider.value = audio.volume;
-                document.querySelector('.volume-icon').textContent = '🔊';
-            }
-        }
-
-        // Start music on first interaction (click, scroll, or touch)
         audio.addEventListener('play', () => {
-            playBtn.textContent = '⏸';
-            playBtn.classList.add('playing');
             // Don't let the anthem overlap an album track.
             if (typeof albumPlayer !== 'undefined' && !albumPlayer.paused) {
                 albumPlayer.pause();
             }
         });
 
+        audio.addEventListener('ended', () => {
+            // When the auto-started anthem finishes, continue into the album,
+            // starting with "Markus On The Bus".
+            const busTrack = document.querySelector('.track[data-src="Markus On The Bus.mp3"]');
+            if (busTrack) playTrack(busTrack);
+        });
+
+        // Start music on first interaction (click, scroll, or touch).
         const startEvents = ['click', 'touchstart', 'pointerdown', 'mousedown', 'wheel', 'keydown'];
 
         function startMusic() {
-            if (audio.paused) {
-                audio.play();
-            }
+            if (audio.paused) audio.play();
             startEvents.forEach(evt => document.removeEventListener(evt, startMusic));
         }
 
@@ -1305,11 +1215,7 @@
                 currentTrack.querySelector('.track-progress-fill').style.width = '0%';
             }
             // Don't let the anthem play over the album track.
-            if (!audio.paused) {
-                audio.pause();
-                playBtn.textContent = '▶';
-                playBtn.classList.remove('playing');
-            }
+            if (!audio.paused) audio.pause();
             currentTrack = el;
             albumPlayer.src = el.dataset.src;
             albumPlayer.play();
