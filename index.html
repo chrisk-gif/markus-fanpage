@@ -543,6 +543,56 @@
             border: none;
         }
 
+        /* Lyrics */
+        .lyrics-box {
+            width: 100%;
+            max-height: 260px;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 15px;
+            border: 2px solid rgba(255,215,0,0.3);
+            text-align: center;
+            scroll-behavior: smooth;
+            -ms-overflow-style: none;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,215,0,0.5) transparent;
+        }
+
+        .lyrics-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .lyrics-box::-webkit-scrollbar-thumb {
+            background: rgba(255,215,0,0.5);
+            border-radius: 4px;
+        }
+
+        .lyric-line {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            padding: 6px 0;
+            color: rgba(255,255,255,0.4);
+            transition: color 0.4s ease, transform 0.4s ease, text-shadow 0.4s ease;
+        }
+
+        .lyric-line.spacer {
+            height: 14px;
+            padding: 0;
+        }
+
+        .lyric-line.active {
+            color: #ffd700;
+            transform: scale(1.08);
+            font-weight: bold;
+            text-shadow: 0 0 12px rgba(255,215,0,0.6);
+        }
+
+        .lyric-line.passed {
+            color: rgba(255,255,255,0.6);
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -944,6 +994,7 @@
                     <span id="currentTime">0:00</span>
                     <span id="duration">0:00</span>
                 </div>
+                <div class="lyrics-box" id="lyricsBox"></div>
             </div>
             <audio id="audioPlayer" src="Markus Stormwater 1 (1).mp3" autoplay preload="auto"></audio>
         </section>
@@ -1002,6 +1053,96 @@
 
         audio.volume = 0.7;
 
+        // ---- Lyrics (auto-distributed across song length) ----
+        const lyricsBox = document.getElementById('lyricsBox');
+        const lyricsLines = [
+            "Yeah, oh-oh-oh-oh-oh",
+            "Yeah, yeah, oh, yeah, oh, oh",
+            "",
+            "Born in the summer of 97, market day",
+            "Stars align the day, every pipe celebrate",
+            "Markets feeling killed, I better write that name",
+            "Played football for straight years, owning every day",
+            "Scored more than Halle, no one kept the score lit",
+            "Techno had an MPU, they begged him for more",
+            "12,000 scooters trusted him, so true",
+            "Cause Markets got the job done like he always do",
+            "Master in water, bachelor in business too",
+            "Single degree just would not do",
+            "San Diego State with a surfer's belt",
+            "California learned from the Norwegian now",
+            "",
+            "He's Marcus, Marcus, Marcus Stormwater",
+            "When rain comes down, the city calls the operator",
+            "49 billion government quota bill",
+            "Marcus, Marcus, Marcus never sees no guilt",
+            "Marcus, Marcus, Marcus Stormwater",
+            "Nobody does it better, no pretender",
+            "Sing about himself, but it's just facts, son",
+            "Legends second to none",
+            "Legends second to none",
+            "",
+            "7'6 on 60, landing on track",
+            "Simmons was a bit faster, that's an honest fact",
+            "Then him golden dandy stabbed back on ice",
+            "Built him a shrine in a locker room twice",
+            "Engineer, acting chief, climbing so fast",
+            "Like mortar through pipes designed to last",
+            "Boy about a troop, bringing casual flex",
+            "Markets signs, then that's what's next",
+            "Aida and Julie, brothers, Andreas too",
+            "All in a shadow, but the view is true",
+            "Charisma uncapped, 100% success",
+            "Marcus grabs Marcus and the world says yes",
+            "",
+            "He's Marcus, Marcus, Marcus Stormwater",
+            "When rain comes down, the city calls the operator",
+            "49 billion government quota bill",
+            "Marcus, Marcus, Marcus never sees no guilt",
+            "Marcus, Marcus, Marcus Stormwater",
+            "Nobody does it better, no pretender",
+            "Sing about himself, but it's just facts, son",
+            "Marcus, Marcus, Legends second to none"
+        ];
+
+        // Render lines. Blank entries become non-interactive spacers.
+        const lineEls = [];        // only real (singable) lines, in order
+        lyricsLines.forEach(text => {
+            const div = document.createElement('div');
+            if (text === "") {
+                div.className = 'lyric-line spacer';
+            } else {
+                div.className = 'lyric-line';
+                div.textContent = text;
+                lineEls.push(div);
+            }
+            lyricsBox.appendChild(div);
+        });
+
+        let activeLyricIndex = -1;
+
+        function updateLyrics() {
+            if (!audio.duration || !lineEls.length) return;
+            // Distribute lines evenly across the full song length.
+            const idx = Math.min(
+                lineEls.length - 1,
+                Math.floor((audio.currentTime / audio.duration) * lineEls.length)
+            );
+            if (idx === activeLyricIndex) return;
+            activeLyricIndex = idx;
+
+            lineEls.forEach((el, i) => {
+                el.classList.toggle('active', i === idx);
+                el.classList.toggle('passed', i < idx);
+            });
+
+            const activeEl = lineEls[idx];
+            if (activeEl) {
+                lyricsBox.scrollTop =
+                    activeEl.offsetTop - lyricsBox.clientHeight / 2 + activeEl.clientHeight / 2;
+            }
+        }
+
         function togglePlay() {
             if (audio.paused) {
                 audio.play();
@@ -1024,6 +1165,7 @@
             const pct = (audio.currentTime / audio.duration) * 100;
             progressBar.style.width = pct + '%';
             currentTimeEl.textContent = formatTime(audio.currentTime);
+            updateLyrics();
         });
 
         audio.addEventListener('loadedmetadata', () => {
@@ -1035,6 +1177,9 @@
             playBtn.classList.remove('playing');
             progressBar.style.width = '0%';
             currentTimeEl.textContent = '0:00';
+            activeLyricIndex = -1;
+            lineEls.forEach(el => el.classList.remove('active', 'passed'));
+            lyricsBox.scrollTop = 0;
         });
 
         function seekAudio(e) {
