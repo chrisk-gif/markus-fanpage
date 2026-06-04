@@ -1068,24 +1068,16 @@
             playBtn.classList.add('playing');
         });
 
+        const startEvents = ['click', 'touchstart', 'pointerdown', 'mousedown', 'wheel', 'keydown'];
+
         function startMusic() {
             if (audio.paused) {
                 audio.play();
             }
-            document.removeEventListener('click', startMusic);
-            document.removeEventListener('scroll', startMusic);
-            document.removeEventListener('touchstart', startMusic);
-            document.removeEventListener('touchmove', startMusic);
-            document.removeEventListener('pointerdown', startMusic);
-            window.removeEventListener('scroll', startMusic);
+            startEvents.forEach(evt => document.removeEventListener(evt, startMusic));
         }
 
-        document.addEventListener('click', startMusic, {passive: true});
-        document.addEventListener('scroll', startMusic, {passive: true});
-        document.addEventListener('touchstart', startMusic, {passive: true});
-        document.addEventListener('touchmove', startMusic, {passive: true});
-        document.addEventListener('pointerdown', startMusic, {passive: true});
-        window.addEventListener('scroll', startMusic, {passive: true});
+        startEvents.forEach(evt => document.addEventListener(evt, startMusic, {passive: true, once: true}));
 
         // Generate random stars
         const starsContainer = document.getElementById('stars');
