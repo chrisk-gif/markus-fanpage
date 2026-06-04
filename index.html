@@ -1041,11 +1041,17 @@
             document.removeEventListener('click', startMusic);
             document.removeEventListener('scroll', startMusic);
             document.removeEventListener('touchstart', startMusic);
+            document.removeEventListener('touchmove', startMusic);
+            document.removeEventListener('pointerdown', startMusic);
+            window.removeEventListener('scroll', startMusic);
         }
 
-        document.addEventListener('click', startMusic);
-        document.addEventListener('scroll', startMusic);
-        document.addEventListener('touchstart', startMusic);
+        document.addEventListener('click', startMusic, {passive: true});
+        document.addEventListener('scroll', startMusic, {passive: true});
+        document.addEventListener('touchstart', startMusic, {passive: true});
+        document.addEventListener('touchmove', startMusic, {passive: true});
+        document.addEventListener('pointerdown', startMusic, {passive: true});
+        window.addEventListener('scroll', startMusic, {passive: true});
 
         // Generate random stars
         const starsContainer = document.getElementById('stars');
