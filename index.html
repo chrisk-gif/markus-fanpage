@@ -593,6 +593,116 @@
             color: rgba(255,255,255,0.6);
         }
 
+        /* Cue line during calibration */
+        .lyric-line.cue {
+            color: #00ffff;
+            transform: scale(1.08);
+            font-weight: bold;
+            text-shadow: 0 0 12px rgba(0,255,255,0.7);
+            animation: cue-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes cue-pulse {
+            0%, 100% { opacity: 0.75; }
+            50% { opacity: 1; }
+        }
+
+        /* Calibration banner */
+        .sync-banner {
+            display: none;
+            width: 100%;
+            margin-top: 15px;
+            padding: 18px;
+            background: rgba(0,255,255,0.08);
+            border: 2px solid rgba(0,255,255,0.4);
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .sync-banner.active {
+            display: block;
+        }
+
+        .sync-banner-text {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #00ffff;
+        }
+
+        .sync-banner-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sync-tap-btn {
+            padding: 16px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            border-radius: 12px;
+            border: 3px solid #00ffff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #00ffff;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.1s ease, box-shadow 0.3s ease;
+        }
+
+        .sync-tap-btn:hover {
+            box-shadow: 0 0 25px rgba(0,255,255,0.5);
+        }
+
+        .sync-tap-btn:active {
+            transform: scale(0.93);
+        }
+
+        .sync-cancel-btn {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.4);
+            background: transparent;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+        }
+
+        /* Lyrics controls */
+        .lyrics-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .lyrics-ctrl-btn {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            border: 2px solid rgba(255,215,0,0.5);
+            background: rgba(255,215,0,0.1);
+            color: #ffd700;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .lyrics-ctrl-btn:hover {
+            background: rgba(255,215,0,0.25);
+            transform: translateY(-2px);
+        }
+
+        .lyrics-status {
+            font-size: 0.8rem;
+            opacity: 0.75;
+            width: 100%;
+            text-align: center;
+            margin-top: 4px;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -995,6 +1105,19 @@
                     <span id="duration">0:00</span>
                 </div>
                 <div class="lyrics-box" id="lyricsBox"></div>
+                <div class="sync-banner" id="syncBanner">
+                    <div class="sync-banner-text" id="syncBannerText">🎤 Trykk MELLOMROM (eller knappen) idet hver linje starter</div>
+                    <div class="sync-banner-btns">
+                        <button class="sync-tap-btn" id="syncTapBtn" onclick="captureBeat()">TRYKK</button>
+                        <button class="sync-cancel-btn" onclick="cancelCalibration()">Avbryt</button>
+                    </div>
+                </div>
+                <div class="lyrics-controls">
+                    <button class="lyrics-ctrl-btn" id="calibrateBtn" onclick="startCalibration()">🎤 Kalibrer karaoke</button>
+                    <button class="lyrics-ctrl-btn" id="exportBtn" onclick="exportTimings()">📋 Eksporter</button>
+                    <button class="lyrics-ctrl-btn" onclick="resetTimings()">♻️ Nullstill</button>
+                    <span class="lyrics-status" id="lyricsStatus"></span>
+                </div>
             </div>
             <audio id="audioPlayer" src="Markus Stormwater 1 (1).mp3" autoplay preload="auto"></audio>
         </section>
@@ -1121,13 +1244,50 @@
 
         let activeLyricIndex = -1;
 
-        function updateLyrics() {
-            if (!audio.duration || !lineEls.length) return;
-            // Distribute lines evenly across the full song length.
-            const idx = Math.min(
+        // ---- Saved karaoke timings (one timestamp in seconds per real line) ----
+        const TIMINGS_KEY = 'markusKaraokeTimings';
+        let savedTimings = null;
+        try {
+            const raw = localStorage.getItem(TIMINGS_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length === lineEls.length) {
+                    savedTimings = parsed;
+                }
+            }
+        } catch (e) { /* ignore corrupt storage */ }
+
+        function hasKaraoke() {
+            return Array.isArray(savedTimings) && savedTimings.length === lineEls.length;
+        }
+
+        function scrollToLine(el) {
+            if (el) {
+                lyricsBox.scrollTop =
+                    el.offsetTop - lyricsBox.clientHeight / 2 + el.clientHeight / 2;
+            }
+        }
+
+        function getActiveIndex() {
+            if (hasKaraoke()) {
+                // Exact mode: last line whose timestamp has been reached.
+                let idx = -1;
+                for (let i = 0; i < savedTimings.length; i++) {
+                    if (audio.currentTime >= savedTimings[i]) idx = i;
+                }
+                return idx;
+            }
+            // Fallback: distribute lines evenly across the song length.
+            if (!audio.duration) return -1;
+            return Math.min(
                 lineEls.length - 1,
                 Math.floor((audio.currentTime / audio.duration) * lineEls.length)
             );
+        }
+
+        function updateLyrics() {
+            if (calibrating || !lineEls.length) return;
+            const idx = getActiveIndex();
             if (idx === activeLyricIndex) return;
             activeLyricIndex = idx;
 
@@ -1136,12 +1296,115 @@
                 el.classList.toggle('passed', i < idx);
             });
 
-            const activeEl = lineEls[idx];
-            if (activeEl) {
-                lyricsBox.scrollTop =
-                    activeEl.offsetTop - lyricsBox.clientHeight / 2 + activeEl.clientHeight / 2;
+            if (idx >= 0) scrollToLine(lineEls[idx]);
+        }
+
+        // ---- Calibration (tap-to-sync) ----
+        const syncBanner = document.getElementById('syncBanner');
+        const syncBannerText = document.getElementById('syncBannerText');
+        const lyricsStatus = document.getElementById('lyricsStatus');
+        let calibrating = false;
+        let calibIndex = 0;
+        let calibTimings = [];
+
+        function updateStatus() {
+            if (hasKaraoke()) {
+                lyricsStatus.textContent = '✓ Karaoke kalibrert – linjene treffer eksakt';
+            } else {
+                lyricsStatus.textContent = 'Ikke kalibrert ennå – bruker jevn fordeling. Trykk «Kalibrer karaoke».';
             }
         }
+
+        function highlightCue() {
+            lineEls.forEach((el, i) => {
+                el.classList.remove('active', 'passed');
+                el.classList.toggle('cue', i === calibIndex);
+            });
+            scrollToLine(lineEls[calibIndex]);
+            syncBannerText.textContent =
+                '🎤 Linje ' + (calibIndex + 1) + ' av ' + lineEls.length +
+                ' – trykk MELLOMROM idet linjen starter';
+        }
+
+        function startCalibration() {
+            calibrating = true;
+            calibIndex = 0;
+            calibTimings = [];
+            activeLyricIndex = -1;
+            syncBanner.classList.add('active');
+            audio.currentTime = 0;
+            audio.play();
+            playBtn.textContent = '⏸';
+            playBtn.classList.add('playing');
+            highlightCue();
+        }
+
+        function captureBeat() {
+            if (!calibrating) return;
+            calibTimings[calibIndex] = audio.currentTime;
+            calibIndex++;
+            if (calibIndex >= lineEls.length) {
+                finishCalibration();
+            } else {
+                highlightCue();
+            }
+        }
+
+        function finishCalibration() {
+            calibrating = false;
+            savedTimings = calibTimings.slice();
+            try {
+                localStorage.setItem(TIMINGS_KEY, JSON.stringify(savedTimings));
+            } catch (e) { /* ignore */ }
+            syncBanner.classList.remove('active');
+            lineEls.forEach(el => el.classList.remove('cue'));
+            activeLyricIndex = -1;
+            updateStatus();
+            updateLyrics();
+        }
+
+        function cancelCalibration() {
+            calibrating = false;
+            syncBanner.classList.remove('active');
+            lineEls.forEach(el => el.classList.remove('cue'));
+            activeLyricIndex = -1;
+            updateStatus();
+        }
+
+        function resetTimings() {
+            savedTimings = null;
+            try { localStorage.removeItem(TIMINGS_KEY); } catch (e) { /* ignore */ }
+            activeLyricIndex = -1;
+            updateStatus();
+            updateLyrics();
+        }
+
+        function exportTimings() {
+            if (!hasKaraoke()) {
+                alert('Ingen kalibrering å eksportere ennå. Kjør «Kalibrer karaoke» først.');
+                return;
+            }
+            const text = JSON.stringify(savedTimings.map(t => Math.round(t * 100) / 100));
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => alert('Timing kopiert til utklippstavlen:\n\n' + text))
+                    .catch(() => prompt('Kopier timingen:', text));
+            } else {
+                prompt('Kopier timingen:', text);
+            }
+        }
+
+        // Spacebar captures a beat during calibration (and never scrolls the page then).
+        document.addEventListener('keydown', (e) => {
+            if (calibrating && (e.code === 'Space' || e.key === ' ')) {
+                e.preventDefault();
+                captureBeat();
+            } else if (calibrating && e.key === 'Escape') {
+                cancelCalibration();
+            }
+        });
+
+        updateStatus();
 
         function togglePlay() {
             if (audio.paused) {
@@ -1177,6 +1440,7 @@
             playBtn.classList.remove('playing');
             progressBar.style.width = '0%';
             currentTimeEl.textContent = '0:00';
+            if (calibrating) cancelCalibration();
             activeLyricIndex = -1;
             lineEls.forEach(el => el.classList.remove('active', 'passed'));
             lyricsBox.scrollTop = 0;
