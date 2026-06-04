@@ -1028,15 +1028,24 @@
             }
         }
 
-        // Autoplay when page loads
+        // Start music on first interaction (click, scroll, or touch)
         audio.addEventListener('play', () => {
             playBtn.textContent = '⏸';
             playBtn.classList.add('playing');
         });
 
-        window.addEventListener('load', () => {
-            audio.play().catch(() => {});
-        });
+        function startMusic() {
+            if (audio.paused) {
+                audio.play();
+            }
+            document.removeEventListener('click', startMusic);
+            document.removeEventListener('scroll', startMusic);
+            document.removeEventListener('touchstart', startMusic);
+        }
+
+        document.addEventListener('click', startMusic);
+        document.addEventListener('scroll', startMusic);
+        document.addEventListener('touchstart', startMusic);
 
         // Generate random stars
         const starsContainer = document.getElementById('stars');
