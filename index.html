@@ -1231,6 +1231,10 @@
             playBtn.classList.remove('playing');
             progressBar.style.width = '0%';
             currentTimeEl.textContent = '0:00';
+            // When the auto-started anthem finishes, continue into the album,
+            // starting with "Markus On The Bus".
+            const busTrack = document.querySelector('.track[data-src="Markus On The Bus.mp3"]');
+            if (busTrack) playTrack(busTrack);
         });
 
         function seekAudio(e) {
@@ -1334,11 +1338,11 @@
         });
 
         albumPlayer.addEventListener('ended', () => {
-            if (currentTrack) {
-                currentTrack.classList.remove('playing');
-                setTrackIcon(currentTrack, false);
-                currentTrack.querySelector('.track-progress-fill').style.width = '0%';
-            }
+            // Auto-advance to the next track in the list (wrap around at the end).
+            const tracks = Array.from(document.querySelectorAll('.track'));
+            const idx = currentTrack ? tracks.indexOf(currentTrack) : -1;
+            const next = tracks[(idx + 1) % tracks.length];
+            if (next) playTrack(next);
         });
 
         // Generate random stars
